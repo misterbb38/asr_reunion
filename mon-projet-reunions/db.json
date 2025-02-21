@@ -1,0 +1,67 @@
+{
+  "meetings": [
+    {
+      "id": "1",
+      "date": "2025-02-21",
+      "title": "Réunion Annuelle",
+      "agenda": [
+        {
+          "text": "Rapport financier",
+          "subItems": [
+            {
+              "text": "Résultats 2024"
+            },
+            {
+              "text": "Prévisions 2025"
+            }
+          ]
+        },
+        {
+          "text": "Planification des événements",
+          "subItems": []
+        }
+      ],
+      "summary": "Nous avons discuté du budget annuel et fixé les grandes lignes."
+    },
+    {
+      "id": "2",
+      "date": "2025-03-05",
+      "title": "Réunion Extraordinaire",
+      "agenda": [
+        {
+          "text": "Démission du trésorier",
+          "subItems": []
+        },
+        {
+          "text": "Élection d'un nouveau trésorier",
+          "subItems": []
+        }
+      ],
+      "summary": "Décisions prises concernant la trésorerie."
+    },
+    {
+      "id": 1740145384205,
+      "date": "2025-02-22",
+      "title": "reunion essai",
+      "agenda": [
+        {
+          "text": "premier",
+          "subItems": [
+            {
+              "text": "moi"
+            }
+          ]
+        },
+        {
+          "text": "deu",
+          "subItems": [
+            {
+              "text": "dfdfg"
+            }
+          ]
+        }
+      ],
+      "summary": "gfgg"
+    }
+  ]
+}

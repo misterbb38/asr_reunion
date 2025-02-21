@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "date": "2025-02-21",
+      "title": "Réunion Annuelle",
+      "agenda": ["Rapport financier", "Planification des événements", "Questions diverses"],
+      "summary": "Nous avons discuté du budget annuel et fixé les grandes lignes."
+    },
+    {
+      "id": 2,
+      "date": "2025-03-05",
+      "title": "Réunion Extraordinaire",
+      "agenda": ["Démission du trésorier", "Élection d'un nouveau trésorier"],
+      "summary": "Décisions prises concernant la trésorerie et l'organisation."
+    }
+  ]
+  
