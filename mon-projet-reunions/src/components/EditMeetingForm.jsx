@@ -1,66 +1,64 @@
-// src/components/EditMeetingForm.jsx
+// frontend/src/components/EditMeetingForm.jsx
 import React, { useState } from "react";
 
 function EditMeetingForm({ meeting, onSubmit, onCancel }) {
-  const [date, setDate] = useState(meeting.date);
+  // On initialise l'état avec les valeurs existantes
+  const [date, setDate] = useState(meeting.date.slice(0, 10)); // slice(0,10) => YYYY-MM-DD
   const [title, setTitle] = useState(meeting.title);
   const [summary, setSummary] = useState(meeting.summary);
-  const [agendaItems, setAgendaItems] = useState(meeting.agenda || []);
+  const [agenda, setAgenda] = useState(meeting.agenda || []);
 
-  // Ajout d'un item principal
+  // Pour l'ajout d'item principal / sous-item
   const [newAgendaText, setNewAgendaText] = useState("");
+  const [newSubItemText, setNewSubItemText] = useState("");
+  const [parentIndex, setParentIndex] = useState(null);
+
   const handleAddAgendaItem = () => {
-    const trimmedText = newAgendaText.trim();
-    if (!trimmedText) return;
-    setAgendaItems((prev) => [...prev, { text: trimmedText, subItems: [] }]);
+    const trimmed = newAgendaText.trim();
+    if (!trimmed) return;
+    setAgenda((prev) => [...prev, { text: trimmed, subItems: [] }]);
     setNewAgendaText("");
   };
 
-  // Ajout d'un sous-item
-  const [newSubItemText, setNewSubItemText] = useState("");
-  const [parentIndex, setParentIndex] = useState(null);
   const handleAddSubItem = () => {
-    const trimmedText = newSubItemText.trim();
-    if (!trimmedText || parentIndex === null) return;
-
-    setAgendaItems((prev) => {
-      const updated = [...prev];
-      updated[parentIndex] = {
-        ...updated[parentIndex],
-        subItems: [...updated[parentIndex].subItems, { text: trimmedText }],
+    const trimmed = newSubItemText.trim();
+    if (!trimmed || parentIndex === null) return;
+    setAgenda((prev) => {
+      const copy = [...prev];
+      copy[parentIndex] = {
+        ...copy[parentIndex],
+        subItems: [...copy[parentIndex].subItems, { text: trimmed }],
       };
-      return updated;
+      return copy;
     });
-
     setNewSubItemText("");
     setParentIndex(null);
   };
 
-  // Validation du formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!date || !title) {
-      alert("Date et Titre obligatoires");
+      alert("Date et titre obligatoires");
       return;
     }
-
-    // On reconstruit l'objet updatedMeeting
-    const updatedMeeting = {
-      ...meeting, // garde l'id existant
+    // On reconstruit l'objet meeting mis à jour
+    const updated = {
+      ...meeting, // on récupère _id, etc.
       date,
       title,
       summary,
-      agenda: agendaItems,
+      agenda,
     };
-
-    onSubmit(updatedMeeting);
+    onSubmit(updated);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4 rounded">
-      <h2 className="text-lg font-semibold">Modifier la réunion</h2>
-      <div>
-        <label className="block mb-1 font-medium">Date</label>
+    <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded">
+      <h2 className="text-lg font-semibold mb-2">Éditer la réunion</h2>
+
+      {/* Date */}
+      <div className="mb-2">
+        <label className="block font-medium">Date</label>
         <input
           type="date"
           className="border p-2 w-full rounded"
@@ -68,8 +66,10 @@ function EditMeetingForm({ meeting, onSubmit, onCancel }) {
           onChange={(e) => setDate(e.target.value)}
         />
       </div>
-      <div>
-        <label className="block mb-1 font-medium">Titre</label>
+
+      {/* Titre */}
+      <div className="mb-2">
+        <label className="block font-medium">Titre</label>
         <input
           type="text"
           className="border p-2 w-full rounded"
@@ -78,27 +78,29 @@ function EditMeetingForm({ meeting, onSubmit, onCancel }) {
         />
       </div>
 
-      {/* ORDRE DU JOUR */}
-      <div>
-        <label className="block mb-1 font-medium">Ordre du Jour</label>
-        {/* Ajout item principal */}
+      {/* Agenda Items + Sous-items */}
+      <div className="mb-2">
+        <label className="block font-medium">Ordre du jour</label>
+
+        {/* Ajouter item principal */}
         <div className="flex gap-2 mb-2">
           <input
             type="text"
             className="border p-2 w-full rounded"
-            placeholder="Ajouter un point principal..."
+            placeholder="Ajouter un point..."
             value={newAgendaText}
             onChange={(e) => setNewAgendaText(e.target.value)}
           />
           <button
             type="button"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded"
             onClick={handleAddAgendaItem}
           >
             + Item
           </button>
         </div>
-        {/* Ajout sous-item */}
+
+        {/* Ajouter sous-item */}
         <div className="flex gap-2 mb-4">
           <select
             className="border p-2 rounded"
@@ -109,8 +111,8 @@ function EditMeetingForm({ meeting, onSubmit, onCancel }) {
               )
             }
           >
-            <option value="">Sélectionnez l'item parent</option>
-            {agendaItems.map((item, idx) => (
+            <option value="">Item parent</option>
+            {agenda.map((item, idx) => (
               <option key={idx} value={idx}>
                 {item.text}
               </option>
@@ -119,30 +121,28 @@ function EditMeetingForm({ meeting, onSubmit, onCancel }) {
           <input
             type="text"
             className="border p-2 w-full rounded"
-            placeholder="Ajouter un sous-point..."
+            placeholder="Sous-point..."
             value={newSubItemText}
             onChange={(e) => setNewSubItemText(e.target.value)}
           />
           <button
             type="button"
-            className="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500"
+            className="bg-blue-400 text-white px-4 py-2 rounded"
             onClick={handleAddSubItem}
           >
             + Sous-item
           </button>
         </div>
 
-        {/* Aperçu des items */}
+        {/* Aperçu de la structure */}
         <ul className="list-disc list-inside space-y-1">
-          {agendaItems.map((item, idx) => (
+          {agenda.map((item, idx) => (
             <li key={idx} className="ml-4">
               <b>{item.text}</b>
               {item.subItems && item.subItems.length > 0 && (
                 <ul className="list-circle list-inside ml-6 mt-1">
                   {item.subItems.map((sub, sIdx) => (
-                    <li key={sIdx} className="text-gray-700">
-                      - {sub.text}
-                    </li>
+                    <li key={sIdx}>- {sub.text}</li>
                   ))}
                 </ul>
               )}
@@ -151,9 +151,9 @@ function EditMeetingForm({ meeting, onSubmit, onCancel }) {
         </ul>
       </div>
 
-      {/* RESUME */}
-      <div>
-        <label className="block mb-1 font-medium">Résumé</label>
+      {/* Résumé */}
+      <div className="mb-2">
+        <label className="block font-medium">Résumé</label>
         <textarea
           className="border p-2 w-full rounded"
           rows={3}
@@ -162,17 +162,17 @@ function EditMeetingForm({ meeting, onSubmit, onCancel }) {
         />
       </div>
 
-      {/* BOUTONS */}
+      {/* Boutons */}
       <div className="flex gap-2">
         <button
           type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="bg-green-500 text-white px-4 py-2 rounded"
         >
           Enregistrer
         </button>
         <button
           type="button"
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
           onClick={onCancel}
         >
           Annuler

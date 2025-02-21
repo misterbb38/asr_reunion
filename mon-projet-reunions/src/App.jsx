@@ -1,16 +1,15 @@
-// src/App.jsx
+// frontend/src/App.jsx
 import React, { useEffect, useState } from "react";
 import MeetingForm from "./components/MeetingForm";
 import MeetingList from "./components/MeetingList";
 
-// URL de l'API JSON Server
-const API_URL = "http://localhost:3001/meetings";
+const API_URL = import.meta.env.VITE_API_URL + "/meetings";
 
 function App() {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Charger les réunions au démarrage
+  // Charger la liste au démarrage
   useEffect(() => {
     fetch(API_URL)
       .then((res) => res.json())
@@ -19,70 +18,71 @@ function App() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Erreur lors du chargement des réunions :", err);
+        console.error("Erreur fetch meetings:", err);
         setLoading(false);
       });
   }, []);
 
-  // Ajouter une réunion via POST
+  // Créer (POST)
   const handleAddMeeting = async (newMeeting) => {
     try {
-      const response = await fetch(API_URL, {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newMeeting),
       });
-      const savedMeeting = await response.json();
-      setMeetings((prev) => [...prev, savedMeeting]);
+      const saved = await res.json();
+      setMeetings((prev) => [...prev, saved]);
     } catch (error) {
-      console.error("Erreur lors de l'ajout :", error);
+      console.error("Erreur ajout:", error);
     }
   };
 
-  // Mettre à jour une réunion existante (EDIT) via PUT (ou PATCH)
+  // Mettre à jour (PUT)
   const handleUpdateMeeting = async (updatedMeeting) => {
     try {
-      const response = await fetch(`${API_URL}/${updatedMeeting.id}`, {
+      const res = await fetch(`${API_URL}/${updatedMeeting._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedMeeting),
       });
-      const savedMeeting = await response.json();
-
-      // Mettre à jour l'état local
-      setMeetings((prev) =>
-        prev.map((m) => (m.id === savedMeeting.id ? savedMeeting : m))
-      );
+      const saved = await res.json();
+      // Met à jour dans le state
+      setMeetings((prev) => prev.map((m) => (m._id === saved._id ? saved : m)));
     } catch (error) {
-      console.error("Erreur lors de la mise à jour :", error);
+      console.error("Erreur mise à jour:", error);
     }
   };
 
-  // Tri optionnel par date
-  const sortedMeetings = [...meetings].sort((a, b) => {
-    return new Date(a.date) - new Date(b.date);
-  });
+  // Supprimer (DELETE)
+  const handleDeleteMeeting = async (id) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      setMeetings((prev) => prev.filter((m) => m._id !== id));
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+    }
+  };
 
   if (loading) {
-    return <p className="text-center mt-4">Chargement en cours...</p>;
+    return <div className="text-center p-4">Chargement en cours...</div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <div className="container mx-auto max-w-3xl bg-white p-6 rounded shadow-sm">
+      <div className="container max-w-3xl mx-auto bg-white p-6 rounded shadow-sm">
         <h1 className="text-2xl font-bold mb-4 text-center">
-          Gestion des Réunions
+          Gestion des Réunions (Mongo + Sous-Listes + Édition)
         </h1>
 
-        {/* Formulaire pour créer une nouvelle réunion */}
         <MeetingForm onAddMeeting={handleAddMeeting} />
 
         <hr className="my-6" />
 
-        {/* Liste des réunions + possibilité d'édition */}
         <MeetingList
-          meetings={sortedMeetings}
+          meetings={meetings}
           onUpdateMeeting={handleUpdateMeeting}
+          onDeleteMeeting={handleDeleteMeeting}
         />
       </div>
     </div>
